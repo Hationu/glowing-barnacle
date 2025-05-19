@@ -1,0 +1,1 @@
+In this project, I investigated a data set of tenants residing in a household in England, regardless of the records not having a time frame of tenancy or occupation done by the tenants, there are other unique factors that we can use to get better insight and render conclusive observation, I will be visualizing these findings using numerous ggplot variations
