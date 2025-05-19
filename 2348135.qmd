@@ -1,0 +1,180 @@
+---
+title: "7CS034 Assessment: Data Science"
+author: "Henry Ationu"
+date: 10/30/24
+format:
+  html:
+    theme: lux
+editor: visual
+code-fold: true
+code-link: true
+toc: true
+number-sections: true
+---
+
+# Introduction
+
+In this assessment, I will be investigating a data set of tenants residing in a household in England, regardless of the records not having a time frame of tenancy or occupation done by the tenants, there are other unique factors that we can use to get better insight and render conclusive observation, I will be visualizing these findings using numerous ggplot variations.
+
+**Variables used for investigation**
+
+As there was not a rigid path to accomplishing this task, I chose to investigate the age distribution of the household, the population distribution of marital status, their income, education level, and ethnicity, and would point out some trends in the data set.
+
+Now I begin by loading all our packages
+
+```{r}
+#|Label: loading packages 
+library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+library(scales)
+```
+
+# The Data
+
+Now I will be importing the data set in order to observe the structure of data, to begin tidying it up for further investigation.
+
+```{r}
+#|label: importing the data
+data <- read.csv("C:/Users/Henry/Downloads/data.csv")
+```
+
+## Data Summary
+
+Now that I have the data set, I needed to see the structure of the data, drop any Null values present in the records, in order to decide on what approach would be best for visualization.
+
+```{r}
+#|label: Data structure
+str(data)
+summary(data)
+```
+
+```{r}
+#|label: proceed to dropping null values
+data <- na.omit(data)
+```
+
+On studying the data set, I realized that some records would not play a significant roll in our investigation so I proceeded to dropping those columns to make the data set less cumbersome and easier to manipulate, records such as "ID" & "Personal_ID", the reason being, irrespective of those being unique keys, representing them using visualization would make certain graphs unappealing to the sight.
+
+```{r}
+#| label: Dropping first 2 columns 
+data <- data |>
+  select( -ID, -Person_ID)
+```
+
+## Findings and visualization of comparisons
+
+### Age Distribution
+
+I thought it smart to see the age distribution of the household, to determine the kind of families that reside, and from the chart below, you can categorically say that it's mostly populated by young people aged between late 20's and mid 40's.
+
+```{r}
+#| label: Age distribution 
+ggplot(data, aes(x = Age)) +
+  geom_histogram(binwidth = 5, fill = "lightblue", color = "white") +
+  labs(title = "Age Distribution", x = "Age", y = "Count")+
+  theme_light()
+```
+
+### Marital Status Distribution
+
+I then wondered what the nature of these young people were with respect to their marital status, to see if the young people aged less than 18 belonged to families. And I can say for a fact that indeed the majority were married, which explains the considerable number of children in the residence.
+
+```{r}
+#|label: Bar chart of Marital Status
+ggplot(data, aes(x = Mar_Stat)) +
+  geom_bar(fill = "lightblue") +
+  labs(title = "Marital Status Distribution", x = "Marital Status", y = "Count") +
+  theme_base()
+```
+
+### Income with respect to Marital Status
+
+Looking at the presented data you can assume that since the major population are married, then typically they will be earning the most and generating the highest income. The box plot below confirms this assumption emphatically.
+
+```{r}
+#| label: Explore Income vs. Marital Status
+ggplot(data, aes(x = Mar_Stat, y = INC, fill = Mar_Stat)) +
+  scale_y_continuous(labels = label_comma())+
+  geom_boxplot() +
+  labs(title = "Income Distribution by Marital Status", 
+       x = "Marital Status", y = "Income (in Pounds)") +
+  theme_light()
+```
+
+### Income against Education level
+
+There goes a saying that you earn according to your educational qualification, but it is interesting to state that the demography earning the most were those with "Some kind of Higher education", meaning they hold a higher level degree other than a bachelor's degree nor master's degree, could be A levels or some form of GED.
+
+```{r}
+#| label:  Bar chart of Income by Education Level
+ggplot(data, aes(x= Highest.Ed, y= INC)) +
+  scale_y_continuous(labels = label_comma())+
+  geom_bar(fill= "lightgreen",stat="identity") +
+  labs(
+    title="Income by Education Level",
+    x="Highest Education Level",
+    y="Annual Income") +
+  theme(axis.text.x = element_text(angle=65, vjust=0.6))
+```
+
+### Income in respect to age
+
+I also went further to see what age bracket earned the most, and I found that it was the young people aged between late 20's and 40's, this could also be due to the fact that the most part of the census are people within that same age bracket.
+
+```{r}
+#| label: Age and income 
+ggplot(data, aes(x = Age, color = INC)) +
+  geom_density(color="darkgreen",linewidth=1)+ theme_classic()
+```
+
+### Income in respect to gender
+
+There was almost an even distribution between female and male, so I decided to see what gender earned the most, to determine if most of the mother's were stay-at-home mother's but on the contrary, the women earned the highest.
+
+```{r}
+#| label: Income Distribution by Gender
+ggplot(data, aes(x = Female, y = INC, fill = factor(Female))) +
+  scale_y_continuous(labels = label_comma())+
+  geom_boxplot() +
+  labs(title = "Income Distribution by Gender", 
+       x = "Gender (1 = Male, 0 = Female)", 
+       y = "Income") +
+  scale_x_discrete(labels = c("Male", "Female")) +
+  theme_light()
+```
+
+### Ethnicity with the highest married rate
+
+Along my analysis I thought it useful to see what ethnic group had the highest rate of marriage, divorce, never married, separated, divorced & widowed. The bar chart below shows that the White ethnic group had the highest rate of all 5 categories, this could also be due to the fact that majority of the census IS white.
+
+```{r}
+#| label: Bar chat plot of Ethnicity and marital status
+ggplot(data,mapping = aes(x = Eth, fill = Mar_Stat)) +
+  geom_bar(position = "dodge") +
+  labs(x = "Ethnicity", y = "Count", fill = "Marital status") +
+  ggtitle("Ethnicity against marital status")
+```
+
+### Ethnicity against Income
+
+Lastly I thought to investigate the ethnicity earning the most, even though we can infer from most part of this analysis and the size of the data which would be the highest, and yes yet again it was the white ethnic group.
+
+```{r}
+#| label: Ethnicity and income
+pie <- ggplot(data, aes(x = "", y=INC, fill = factor(Eth))) + 
+  scale_y_continuous(labels = label_comma())+
+  geom_bar(width = 3, stat = "identity") +
+  theme(axis.line = element_blank(), 
+        plot.title = element_text(hjust=0.5)) + 
+  labs(fill="Ethnicity", 
+       x=NULL, 
+       y=NULL, 
+       title="Pie Chart showing the Ethnic group earning the most")
+
+pie + coord_polar(theta = "y", start=0)+ theme_void()
+```
+
+# Conclusion
+
+The data set was tailored around white family households, and the numbers show that empirically, I found it very interesting that the population with secondary school educational level earned more than those with master's degrees and higher.
