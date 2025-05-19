@@ -1,5 +1,5 @@
 ---
-title: "7CS034 Assessment: Data Science"
+title: "Assessment: Data Science"
 author: "Henry Ationu"
 date: 10/30/24
 format:
